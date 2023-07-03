@@ -9,12 +9,13 @@ import Input from '../../components/input/Input'
 import { login } from '../../Api/auth.api'
 import { AppContext } from '../../contexts/app.context'
 import { useContext } from 'react'
+import Button from '../../components/Button'
 
 type FormData = Omit<Schema, 'confirm_password'>
 const loginSchema = schema.omit(['confirm_password'])
 
 export default function Login() {
-  const { setIsAuthenticated } = useContext(AppContext)
+  const { setIsAuthenticated, setProfile } = useContext(AppContext)
   const navigate = useNavigate()
   const {
     register,
@@ -34,6 +35,7 @@ export default function Login() {
     loginMutaion.mutate(data, {
       onSuccess: (data) => {
         setIsAuthenticated(true)
+        setProfile(data.data.data.user)
         navigate('/')
       },
       onError: (error) => {
@@ -96,12 +98,14 @@ export default function Login() {
               />
 
               <div className='mt-3'>
-                <button
+                <Button
+                  disabled={loginMutaion.isLoading}
+                  isLoading={loginMutaion.isLoading}
                   type='submit'
-                  className='w-full bg-red-500 px-2 py-4 text-center text-sm uppercase text-white hover:bg-red-600'
+                  className=' flex w-full items-center justify-center bg-red-500 px-2 py-4 text-center text-sm uppercase text-white hover:bg-red-600'
                 >
                   Sign in
-                </button>
+                </Button>
               </div>
 
               <div className='mt-8 text-center'>

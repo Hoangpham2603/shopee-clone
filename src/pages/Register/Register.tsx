@@ -10,11 +10,12 @@ import { ErrorResponse } from 'src/types/utils.type'
 import { registerAccount } from '../../Api/auth.api'
 import { useContext } from 'react'
 import { AppContext } from '../../contexts/app.context'
+import Button from '../../components/Button'
 
 type FormData = Schema
 
 export default function Register() {
-  const { setIsAuthenticated } = useContext(AppContext)
+  const { setIsAuthenticated, setProfile } = useContext(AppContext)
   const navigate = useNavigate()
   const {
     register,
@@ -32,8 +33,9 @@ export default function Register() {
   const onSubmit = handleSubmit((data) => {
     const body = omit(data, ['confirm_password'])
     registerAccountMutation.mutate(body, {
-      onSuccess: () => {
+      onSuccess: (data) => {
         setIsAuthenticated(true)
+        setProfile(data.data.data.user)
         navigate('/')
       },
       onError: (error) => {
@@ -101,12 +103,14 @@ export default function Register() {
               />
 
               <div className='mt-3'>
-                <button
+                <Button
+                  disabled={registerAccountMutation.isLoading}
+                  isLoading={registerAccountMutation.isLoading}
                   type='submit'
-                  className='w-full bg-red-500 px-2 py-4 text-center text-sm uppercase text-white hover:bg-red-600'
+                  className='flex w-full items-center justify-center bg-red-500 px-2 py-4 text-center text-sm uppercase text-white hover:bg-red-600'
                 >
                   Sign up
-                </button>
+                </Button>
               </div>
 
               <div className='mt-8 text-center'>

@@ -4,13 +4,15 @@ import { useMutation } from '@tanstack/react-query'
 import { logout } from '../../Api/auth.api'
 import { AppContext } from '../../contexts/app.context'
 import { useContext } from 'react'
+import path from '../constants/path'
 
 export default function MainHeader() {
-  const { setIsAuthenticated } = useContext(AppContext)
+  const { setIsAuthenticated, isAuthenticated, setProfile, profile } = useContext(AppContext)
   const logoutMutation = useMutation({
     mutationFn: logout,
     onSuccess: () => {
       setIsAuthenticated(false)
+      setProfile(null)
     }
   })
 
@@ -60,45 +62,58 @@ export default function MainHeader() {
             </svg>
           </Popover>
 
-          <Popover
-            className='ml-6 flex cursor-pointer items-center py-1 hover:text-gray-300'
-            renderPopover={
-              <div className='relative rounded-sm border border-gray-200 bg-white shadow-md'>
-                <Link
-                  to='/profile'
-                  className='block w-full bg-white px-3 py-2 text-left hover:bg-slate-100 hover:text-cyan-500'
-                >
-                  My Account
-                </Link>
+          {isAuthenticated && (
+            <Popover
+              className='ml-6 flex cursor-pointer items-center py-1 hover:text-gray-300'
+              renderPopover={
+                <div className='relative rounded-sm border border-gray-200 bg-white shadow-md'>
+                  <Link
+                    to={path.profile}
+                    className='block w-full bg-white px-3 py-2 text-left hover:bg-slate-100 hover:text-cyan-500'
+                  >
+                    My Account
+                  </Link>
 
-                <Link
-                  to='/'
-                  className='block w-full bg-white px-3 py-2 text-left hover:bg-slate-100 hover:text-cyan-500'
-                >
-                  Carts
-                </Link>
+                  <Link
+                    to='/'
+                    className='block w-full bg-white px-3 py-2 text-left hover:bg-slate-100 hover:text-cyan-500'
+                  >
+                    Carts
+                  </Link>
 
-                <Link
-                  onClick={handleLogout}
-                  to='/'
-                  className='block w-full bg-white px-3 py-2 text-left hover:bg-slate-100 hover:text-cyan-500'
-                >
-                  Logout
-                </Link>
+                  <Link
+                    onClick={handleLogout}
+                    to='/'
+                    className='block w-full bg-white px-3 py-2 text-left hover:bg-slate-100 hover:text-cyan-500'
+                  >
+                    Logout
+                  </Link>
+                </div>
+              }
+            >
+              <div className='mr-2 h-6 w-5 flex-shrink-0'>
+                <img
+                  src='https://pbs.twimg.com/media/FwX0f5KaMAAVS2x?format=jpg&name=large'
+                  alt='avatar'
+                  className='h-full w-full rounded-full object-cover'
+                />
               </div>
-            }
-          >
-            <div className='mr-2 h-6 w-5 flex-shrink-0'>
-              <img
-                src='https://pbs.twimg.com/media/FwX0f5KaMAAVS2x?format=jpg&name=large'
-                alt='avatar'
-                className='h-full w-full rounded-full object-cover'
-              />
+              <div className='ml-3 flex cursor-pointer items-center py-1 hover:text-gray-300'>
+                <div>{profile?.email}</div>
+              </div>
+            </Popover>
+          )}
+          {!isAuthenticated && (
+            <div className='flex items-center'>
+              <Link to={path.register} className='mx-3 capitalize opacity-70 hover:text-white'>
+                Sign Up{' '}
+              </Link>
+              <div className='h-4 border-r-[1px] border-r-white/40 '></div>
+              <Link to={path.login} className='mx-3 capitalize opacity-70 hover:text-white'>
+                Sign in{' '}
+              </Link>
             </div>
-            <div className='ml-3 flex cursor-pointer items-center py-1 hover:text-gray-300'>
-              <div>ABC</div>
-            </div>
-          </Popover>
+          )}
         </div>
 
         <div className='mt-4 grid grid-cols-12 items-end gap-4'>

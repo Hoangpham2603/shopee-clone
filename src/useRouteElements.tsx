@@ -3,7 +3,7 @@ import ProductList from './pages/ProductList'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import RegisterLayout from './layout/RegisterLayout'
-import path from 'path'
+import path from './components/constants/path'
 import MainLayout from './layout/MainLayout'
 import Profile from './pages/Profile'
 import { useContext } from 'react'
@@ -37,7 +37,7 @@ export default function useRouteElements() {
       element: <ProtectedRoutes />,
       children: [
         {
-          path: 'profile',
+          path: path.profile,
           element: (
             <MainLayout>
               <Profile />
@@ -51,7 +51,7 @@ export default function useRouteElements() {
       element: <RejectedRoutes />,
       children: [
         {
-          path: '/login',
+          path: path.login,
           element: (
             <RegisterLayout>
               <Login />
@@ -59,7 +59,7 @@ export default function useRouteElements() {
           )
         },
         {
-          path: '/register',
+          path: path.register,
           element: (
             <RegisterLayout>
               <Register />
