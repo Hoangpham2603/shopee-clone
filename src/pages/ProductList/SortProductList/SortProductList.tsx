@@ -18,12 +18,12 @@ export default function SortProductList() {
             Best Selling
           </button>
 
-          <select className='h-8 bg-white px-4 text-left text-sm capitalize text-black hover:bg-slate-100'>
+          <select className='h-8 bg-white px-4 text-left text-sm capitalize text-black hover:bg-slate-100' value=''>
             <option value='' disabled>
               Price
             </option>
-            <option value='price:asc'>from lowest</option>
-            <option value='price desc'>from highest</option>
+            <option value='price:asc'>from: lowest</option>
+            <option value='price desc'>from: highest</option>
           </select>
         </div>
 
@@ -45,7 +45,7 @@ export default function SortProductList() {
                 </svg>
               </button>
 
-              <button className='h-8 rounded-tl-sm bg-white/80 px-3 hover:bg-slate-100'>
+              <button className='h-8 rounded-tl-sm bg-white/80 px-3 shadow hover:bg-slate-100'>
                 <svg
                   xmlns='http://www.w3.org/2000/svg'
                   fill='none'
