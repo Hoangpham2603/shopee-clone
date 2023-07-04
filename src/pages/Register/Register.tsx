@@ -7,7 +7,7 @@ import { schema, Schema } from '../../utils/rules'
 import Input from '../../components/input'
 import { isAxiosUnprocessableEntityError } from '../../utils/utils'
 import { ErrorResponse } from 'src/types/utils.type'
-import { registerAccount } from '../../Api/auth.api'
+import autApi from '../../Api/auth.api'
 import { useContext } from 'react'
 import { AppContext } from '../../contexts/app.context'
 import Button from '../../components/Button'
@@ -27,7 +27,7 @@ export default function Register() {
   })
 
   const registerAccountMutation = useMutation({
-    mutationFn: (body: Omit<FormData, 'confirm_password'>) => registerAccount(body)
+    mutationFn: (body: Omit<FormData, 'confirm_password'>) => autApi.registerAccount(body)
   })
 
   const onSubmit = handleSubmit((data) => {

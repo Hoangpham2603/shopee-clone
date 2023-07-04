@@ -18,7 +18,10 @@ export default function SortProductList() {
             Best Selling
           </button>
 
-          <select className='h-8 bg-white px-4 text-left text-sm capitalize text-black hover:bg-slate-100' value=''>
+          <select
+            className='h-8 bg-white px-4 text-left text-sm capitalize text-black hover:bg-slate-100'
+            defaultValue=''
+          >
             <option value='' disabled>
               Price
             </option>

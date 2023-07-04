@@ -6,7 +6,7 @@ import { useMutation } from '@tanstack/react-query'
 import { isAxiosUnprocessableEntityError } from '../../utils/utils'
 import { ErrorResponse } from 'src/types/utils.type'
 import Input from '../../components/input/Input'
-import { login } from '../../Api/auth.api'
+import authApi from '../../Api/auth.api'
 import { AppContext } from '../../contexts/app.context'
 import { useContext } from 'react'
 import Button from '../../components/Button'
@@ -28,7 +28,7 @@ export default function Login() {
   })
 
   const loginMutaion = useMutation({
-    mutationFn: (body: Omit<FormData, 'confirm_password'>) => login(body)
+    mutationFn: (body: Omit<FormData, 'confirm_password'>) => authApi.login(body)
   })
 
   const onSubmit = handleSubmit((data) => {
