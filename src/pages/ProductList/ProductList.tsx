@@ -5,6 +5,7 @@ import Product from './Product'
 import { useQuery } from '@tanstack/react-query'
 import useQueryParams from '../../hook/useQueryParams'
 import productApi from '../../Api/product.api'
+import Pagination from '../../components/Paginate'
 
 export default function ProductList() {
   const queryParams = useQueryParams()
@@ -32,6 +33,7 @@ export default function ProductList() {
                   </div>
                 ))}
             </div>
+            <Pagination />
           </div>
         </div>
       </div>
