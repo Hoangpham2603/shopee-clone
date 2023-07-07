@@ -1,10 +1,21 @@
 import React from 'react'
 import path from '../../../components/constants/path'
-import { Link } from 'react-router-dom'
+import { Link, createSearchParams } from 'react-router-dom'
 import Input from '../../../components/input'
 import Button from '../../../components/Button'
+import { QueryConfig } from '../ProductList'
+import { Category } from '../../../types/category.type'
+import classNames from 'classnames'
 
-export default function AsideFilter() {
+interface Props {
+  queryConfig: QueryConfig
+  categories: Category[]
+}
+
+export default function AsideFilter({ queryConfig, categories }: Props) {
+  const { category } = queryConfig
+
+  console.log(category, categories)
   return (
     <div className='py-4'>
       <Link to={path.home} className='flex items-center font-bold'>
@@ -27,14 +38,33 @@ export default function AsideFilter() {
       <div className='my-4 h-[1px] bg-gray-300'></div>
 
       <ul>
-        <li className='py-2 pl-2'>
-          <Link to={path.home} className='relative px-2 font-semibold text-orange'>
-            <svg viewBox='0 0 4 7' className='absolute left-[-10px] top-1 h-2 w-2 fill-orange'>
-              <polygon points='4 3.5 0 0 0 7' />
-            </svg>
-            Men's fashion
-          </Link>
-        </li>
+        {categories.map((categoryItem) => {
+          const isActive = category === categoryItem._id
+          return (
+            <li key={categoryItem._id} className='py-2 pl-2'>
+              <Link
+                to={{
+                  pathname: path.home,
+                  search: createSearchParams({
+                    ...queryConfig,
+                    category: categoryItem._id
+                  }).toString()
+                }}
+                className={classNames('relative px-2', {
+                  'font-semibold text-orange': isActive
+                })}
+              >
+                {isActive && (
+                  <svg viewBox='0 0 4 7' className='absolute left-[-10px] top-1 h-2 w-2 fill-orange'>
+                    <polygon points='4 3.5 0 0 0 7' />
+                  </svg>
+                )}
+                {categoryItem.name}
+              </Link>
+            </li>
+          )
+        })}
+
         <li className='py-2pl-2'>
           <Link to={path.home} className='relative px-2 font-semibold text-orange'>
             Phone
