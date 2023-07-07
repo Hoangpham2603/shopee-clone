@@ -1,22 +1,20 @@
 import path from '../../../components/constants/path'
-import { Link, createSearchParams } from 'react-router-dom'
+import { Link, createSearchParams, useNavigate } from 'react-router-dom'
 import Button from '../../../components/Button'
 import { QueryConfig } from '../ProductList'
 import { Category } from '../../../types/category.type'
 import classNames from 'classnames'
 import InputNumber from '../../../components/InputNumber'
 import { useForm, Controller } from 'react-hook-form'
-import { schema } from '../../../utils/rules'
+import { Schema, schema } from '../../../utils/rules'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { NoUndefinedFiled } from '../../../types/utils.type'
 interface Props {
   queryConfig: QueryConfig
   categories: Category[]
 }
 
-type FormData = {
-  price_min: string
-  price_max: string
-}
+type FormData = NoUndefinedFiled<Pick<Schema, 'price_min' | 'price_max'>>
 
 /**
  * Rule Validate
@@ -43,13 +41,19 @@ export default function AsideFilter({ queryConfig, categories }: Props) {
     shouldFocusError: false
   })
 
+  const navigate = useNavigate()
   const valueForm = watch()
 
   const onsubmit = handleSubmit((data) => {
-    console.log(data)
+    navigate({
+      pathname: path.home,
+      search: createSearchParams({
+        ...queryConfig,
+        price_max: data.price_max,
+        price_min: data.price_min
+      }).toString()
+    })
   })
-
-  console.log(errors)
 
   return (
     <div className='py-4'>
