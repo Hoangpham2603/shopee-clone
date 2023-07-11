@@ -21,7 +21,6 @@ export default function Login() {
     register,
     handleSubmit,
     setError,
-    watch,
     formState: { errors }
   } = useForm<FormData>({
     resolver: yupResolver(loginSchema)

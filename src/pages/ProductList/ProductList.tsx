@@ -1,4 +1,3 @@
-import React, { useState } from 'react'
 import { omitBy, isUndefined } from 'lodash'
 import AsideFilter from './AsideFilter'
 import SortProductList from './SortProductList'
@@ -40,7 +39,7 @@ export default function ProductList() {
   })
 
   const { data: categoriesData } = useQuery({
-    queryKey: ['products'],
+    queryKey: ['categories'],
     queryFn: () => {
       return categoryApi.getCategories()
     },
@@ -53,7 +52,7 @@ export default function ProductList() {
         {productsData && (
           <div className='grid  grid-cols-12 gap-6'>
             <div className='col-span-3'>
-              <AsideFilter categories={categoriesData?.data.data || []} queryConfig={queryConfig} />
+              <AsideFilter queryConfig={queryConfig} categories={categoriesData?.data.data || []} />
             </div>
             <div className='col-span-9'>
               <SortProductList queryConfig={queryConfig} pageSize={productsData.data.data.pagination.page_size} />

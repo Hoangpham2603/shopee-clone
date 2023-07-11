@@ -11,7 +11,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { NoUndefinedFiled } from '../../../types/utils.type'
 interface Props {
   queryConfig: QueryConfig
-  categories: Category[]
+  categories: Category[] | []
 }
 
 type FormData = NoUndefinedFiled<Pick<Schema, 'price_min' | 'price_max'>>

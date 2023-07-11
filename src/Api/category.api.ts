@@ -6,7 +6,7 @@ const URL = 'categories'
 
 const categoryApi = {
   getCategories() {
-    return http.get<SuccessResponse<Category>>(URL)
+    return http.get<SuccessResponse<Category[]>>(URL)
   }
 }
 
