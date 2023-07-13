@@ -3,13 +3,14 @@ import { Link, createSearchParams, useNavigate } from 'react-router-dom'
 import Button from '../../../components/Button'
 import { QueryConfig } from '../ProductList'
 import { Category } from '../../../types/category.type'
-import classNames from 'classnames'
 import InputNumber from '../../../components/InputNumber'
 import { useForm, Controller } from 'react-hook-form'
 import { Schema, schema } from '../../../utils/rules'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { NoUndefinedFiled } from '../../../types/utils.type'
 import RatingStars from '../RatingStarts'
+import { omit } from 'lodash'
+import classNames from 'classnames'
 interface Props {
   queryConfig: QueryConfig
   categories: Category[] | []
@@ -30,7 +31,6 @@ export default function AsideFilter({ queryConfig, categories }: Props) {
   const {
     control,
     handleSubmit,
-    watch,
     trigger,
     formState: { errors }
   } = useForm<FormData>({
@@ -43,7 +43,6 @@ export default function AsideFilter({ queryConfig, categories }: Props) {
   })
 
   const navigate = useNavigate()
-  const valueForm = watch()
 
   const onsubmit = handleSubmit((data) => {
     navigate({
@@ -56,6 +55,12 @@ export default function AsideFilter({ queryConfig, categories }: Props) {
     })
   })
 
+  const handleRemoveAll = () => {
+    navigate({
+      pathname: path.home,
+      search: createSearchParams(omit(queryConfig, ['price', 'price_max', 'rating_filter', 'category'])).toString()
+    })
+  }
   return (
     <div className='py-4'>
       <Link to={path.home} className='flex items-center font-bold'>
@@ -76,7 +81,34 @@ export default function AsideFilter({ queryConfig, categories }: Props) {
       </Link>
 
       <div className='my-4 h-[1px] bg-gray-300'></div>
-
+      <ul>
+        {categories.map((categoryItem) => {
+          const isActive = category === categoryItem._id
+          return (
+            <li className='py-2 pl-2' key={categoryItem._id}>
+              <Link
+                to={{
+                  pathname: path.home,
+                  search: createSearchParams({
+                    ...queryConfig,
+                    category: categoryItem._id
+                  }).toString()
+                }}
+                className={classNames('relative px-2', {
+                  'font-semibold text-orange': isActive
+                })}
+              >
+                {isActive && (
+                  <svg viewBox='0 0 4 7' className='absolute left-[-10px] top-1 h-2 w-2 fill-orange'>
+                    <polygon points='4 3.5 0 0 0 7' />
+                  </svg>
+                )}
+                {categoryItem.name}
+              </Link>
+            </li>
+          )
+        })}
+      </ul>
       <Link to={path.home} className='mt-4 flex items-center font-bold uppercase'>
         <svg
           enableBackground='new 0 0 15 15'
@@ -158,11 +190,14 @@ export default function AsideFilter({ queryConfig, categories }: Props) {
       <div className='text-sm'>Rating</div>
 
       {/* STARS */}
-      <RatingStars />
+      <RatingStars queryConfig={queryConfig} />
 
       <div className='my-4 h-[1px] bg-gray-300'></div>
 
-      <Button className='hover:bg-orange-80 flex w-full items-center justify-center bg-orange p-2 text-sm uppercase text-white'>
+      <Button
+        className='hover:bg-orange-80 flex w-full items-center justify-center bg-orange p-2 text-sm uppercase text-white'
+        onClick={handleRemoveAll}
+      >
         Delete All
       </Button>
     </div>
