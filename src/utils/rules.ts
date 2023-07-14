@@ -85,7 +85,8 @@ export const schema = yup.object({
     name: 'price-not-allowed',
     message: 'Price is not valid',
     test: testPriceMinMax
-  })
+  }),
+  name: yup.string().trim().required('Tên Sản Phẩm')
 })
 
 export type Schema = yup.InferType<typeof schema>
