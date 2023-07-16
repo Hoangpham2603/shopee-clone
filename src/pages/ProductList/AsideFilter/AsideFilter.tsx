@@ -1,7 +1,7 @@
 import path from '../../../components/constants/path'
 import { Link, createSearchParams, useNavigate } from 'react-router-dom'
 import Button from '../../../components/Button'
-import { QueryConfig } from '../ProductList'
+
 import { Category } from '../../../types/category.type'
 import InputNumber from '../../../components/InputNumber'
 import { useForm, Controller } from 'react-hook-form'
@@ -11,6 +11,7 @@ import { NoUndefinedFiled } from '../../../types/utils.type'
 import RatingStars from '../RatingStarts'
 import { omit } from 'lodash'
 import classNames from 'classnames'
+import { QueryConfig } from '../../../hook/useQueryConfig'
 interface Props {
   queryConfig: QueryConfig
   categories: Category[] | []

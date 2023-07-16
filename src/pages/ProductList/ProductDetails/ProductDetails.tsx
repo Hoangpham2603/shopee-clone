@@ -6,7 +6,7 @@ import { formatCurrency, formatNumberToSocialStyle, getIdFromNameId, rateSale } 
 import InputNumber from '../../../components/InputNumber'
 import DOMPurify from 'dompurify'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Product } from '../../../types/product.type'
+import { Product, ProductListConfig } from '../../../types/product.type'
 
 export default function ProductDetails() {
   const { nameId } = useParams()
@@ -23,6 +23,15 @@ export default function ProductDetails() {
     () => (product ? product.images.slice(...currentIndexImages) : []),
     [product, currentIndexImages]
   )
+
+  const queryConfig: ProductListConfig = { limit: '20', page: '1', category: product?.category._id }
+
+  const { data: productsData } = useQuery({
+    queryKey: ['products', queryConfig],
+    queryFn: () => {
+      return productApi.getProduct(queryConfig)
+    }
+  })
 
   useEffect(() => {
     if (product && product.images.length > 0) {
