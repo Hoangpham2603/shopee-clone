@@ -1,6 +1,6 @@
 import { Link, createSearchParams, useNavigate } from 'react-router-dom'
 import Popover from '../Popover'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import authApi from '../../Api/auth.api'
 import { AppContext } from '../../contexts/app.context'
 import { useContext } from 'react'
@@ -10,6 +10,9 @@ import { useForm } from 'react-hook-form'
 import { Schema, schema } from '../../utils/rules'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { omit } from 'lodash'
+import { purchaseStatus } from '../constants/purchase'
+import purchaseApi from '../../Api/purchase.api'
+import noproduct from '../../assets/img/no-product.png'
 
 type FormData = Pick<Schema, 'name'>
 
@@ -32,6 +35,17 @@ export default function MainHeader() {
       setProfile(null)
     }
   })
+
+  //Khi chúng ta chuyển trang thì MainHeader chỉ bị re-render
+  // chứ không bị unmount - mounting again
+  // (tất nhiên trừ khi logout rồi nhảy sang registerlayout r nhảy vào lại)
+  // nên các query này sẽ không bị inactive => không bị gọi lại => không cần thiết phải set stale là infinity
+  const { data: purchasesInCartData } = useQuery({
+    queryKey: ['purchases', { status: purchaseStatus.inCart }],
+    queryFn: () => purchaseApi.getPurchases({ status: purchaseStatus.inCart })
+  })
+
+  const purchasesInCart = purchasesInCartData?.data.data
 
   const handleLogout = () => {
     logoutMutation.mutate()
@@ -194,99 +208,36 @@ export default function MainHeader() {
               placement='bottom-end'
               renderPopover={
                 <div className='relative max-w-[400px] rounded-sm border border-gray-200 bg-white text-sm shadow-md'>
-                  <div className='p-2'>
-                    <div className='capitalize text-gray-400'>Recently Add</div>
+                  {purchasesInCart ? (
+                    <div className='p-2'>
+                      <div className='capitalize text-gray-400'>Recently Add</div>
 
-                    <div className='mt-5'>
-                      <div className='mt-4 flex'>
-                        <div className='flex-shirnk-0'>
-                          <img
-                            className='h-11 w-11 object-cover'
-                            src='https://pbs.twimg.com/media/Fz3ATWdaUAA9jxn?format=jpg&name=large'
-                            alt='pic'
-                          />
-                        </div>
+                      <div className='mt-5'>
+                        {purchasesInCart.map((purchase) => (
+                          <div className='mt-4 flex'>
+                            <div className='flex-shirnk-0'>
+                              <img
+                                className='h-11 w-11 object-cover'
+                                src={purchase.product.image}
+                                alt={purchase.product.image}
+                              />
+                            </div>
+                            <div className='mt-6 flex items-center justify-between'>
+                              <div className='text-xs capitalize text-gray-500'>add to cart</div>
 
-                        <div className='ml-2 flex-grow overflow-hidden'>
-                          <div className='truncate'>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Sed odit, amet non ipsa esse
-                            necessitatibus enim. Dolor sunt dolorum atque!
+                              <button className='rounded-sm bg-orange px-4 py-2 capitalize text-white hover:bg-opacity-80'>
+                                Cart
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                        <div className='ml-2 flex-shrink-0'>
-                          <span className='text-orange'>$49.99</span>
-                        </div>
-                      </div>
-
-                      <div className='mt-4 flex'>
-                        <div className='flex-shirnk-0'>
-                          <img
-                            className='h-11 w-11 object-cover'
-                            src='https://pbs.twimg.com/media/Fz3ATWdaUAA9jxn?format=jpg&name=large'
-                            alt='pic'
-                          />
-                        </div>
-
-                        <div className='ml-2 flex-grow overflow-hidden'>
-                          <div className='truncate'>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Sed odit, amet non ipsa esse
-                            necessitatibus enim. Dolor sunt dolorum atque!
-                          </div>
-                        </div>
-                        <div className='ml-2 flex-shrink-0'>
-                          <span className='text-orange'>$49.99</span>
-                        </div>
-                      </div>
-
-                      <div className='mt-4 flex'>
-                        <div className='flex-shirnk-0'>
-                          <img
-                            className='h-11 w-11 object-cover'
-                            src='https://pbs.twimg.com/media/Fz3ATWdaUAA9jxn?format=jpg&name=large'
-                            alt='pic'
-                          />
-                        </div>
-
-                        <div className='ml-2 flex-grow overflow-hidden'>
-                          <div className='truncate'>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Sed odit, amet non ipsa esse
-                            necessitatibus enim. Dolor sunt dolorum atque!
-                          </div>
-                        </div>
-                        <div className='ml-2 flex-shrink-0'>
-                          <span className='text-orange'>$49.99</span>
-                        </div>
-                      </div>
-
-                      <div className='mt-4 flex'>
-                        <div className='flex-shirnk-0'>
-                          <img
-                            className='h-11 w-11 object-cover'
-                            src='https://pbs.twimg.com/media/Fz3ATWdaUAA9jxn?format=jpg&name=large'
-                            alt='pic'
-                          />
-                        </div>
-
-                        <div className='ml-2 flex-grow overflow-hidden'>
-                          <div className='truncate'>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Sed odit, amet non ipsa esse
-                            necessitatibus enim. Dolor sunt dolorum atque!
-                          </div>
-                        </div>
-                        <div className='ml-2 flex-shrink-0'>
-                          <span className='text-orange'>$49.99</span>
-                        </div>
+                        ))}
                       </div>
                     </div>
-
-                    <div className='mt-6 flex items-center justify-between'>
-                      <div className='text-xs capitalize text-gray-500'>1 add to cart</div>
-
-                      <button className='rounded-sm bg-orange px-4 py-2 capitalize text-white hover:bg-opacity-80'>
-                        Cart
-                      </button>
+                  ) : (
+                    <div className='p-2'>
+                      <img src={noproduct} alt='no product' />
                     </div>
-                  </div>
+                  )}
                 </div>
               }
             >

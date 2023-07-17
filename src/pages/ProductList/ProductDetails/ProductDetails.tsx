@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom'
 import productApi from '../../../Api/product.api'
 import ProductRating from '../../../components/ProductRating'
@@ -8,6 +8,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Product as ProductType, ProductListConfig } from '../../../types/product.type'
 import Product from '../Product'
 import QuantityController from '../../../components/QtityController'
+import purchaseApi from '../../../Api/purchase.api'
 
 export default function ProductDetails() {
   const [buyCount, setBuyCount] = useState(1)
@@ -36,6 +37,12 @@ export default function ProductDetails() {
     enabled: Boolean(product),
     staleTime: 3 * 60 * 1000
   })
+
+  const addToCartMutation = useMutation(purchaseApi.addToCart)
+
+  const addToCart = () => {
+    addToCartMutation.mutate({ buy_count: buyCount, product_id: product?._id as string })
+  }
 
   useEffect(() => {
     if (product && product.images.length > 0) {
@@ -217,7 +224,10 @@ export default function ProductDetails() {
 
               {/* Add to Cart Button */}
               <div className='mt-8 flex items-center'>
-                <button className='flex h-12 items-center justify-center rounded-sm border-orange bg-orange/10 px-5 capitalize text-orange shadow-sm hover:bg-orange/5'>
+                <button
+                  onClick={addToCart}
+                  className='flex h-12 items-center justify-center rounded-sm border-orange bg-orange/10 px-5 capitalize text-orange shadow-sm hover:bg-orange/5'
+                >
                   <svg
                     enableBackground='new 0 0 15 15'
                     viewBox='0 0 15 15'
