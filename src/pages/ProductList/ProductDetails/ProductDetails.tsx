@@ -3,12 +3,14 @@ import { useParams } from 'react-router-dom'
 import productApi from '../../../Api/product.api'
 import ProductRating from '../../../components/ProductRating'
 import { formatCurrency, formatNumberToSocialStyle, getIdFromNameId, rateSale } from '../../../utils/utils'
-import InputNumber from '../../../components/InputNumber'
 import DOMPurify from 'dompurify'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Product, ProductListConfig } from '../../../types/product.type'
+import { Product as ProductType, ProductListConfig } from '../../../types/product.type'
+import Product from '../Product'
+import QuantityController from '../../../components/QtityController'
 
 export default function ProductDetails() {
+  const [buyCount, setBuyCount] = useState(1)
   const { nameId } = useParams()
   const id = getIdFromNameId(nameId as string)
   const { data: productDetailData } = useQuery({
@@ -30,7 +32,9 @@ export default function ProductDetails() {
     queryKey: ['products', queryConfig],
     queryFn: () => {
       return productApi.getProduct(queryConfig)
-    }
+    },
+    enabled: Boolean(product),
+    staleTime: 3 * 60 * 1000
   })
 
   useEffect(() => {
@@ -40,7 +44,7 @@ export default function ProductDetails() {
   }, [product])
 
   const next = () => {
-    if (currentIndexImages[1] < (product as Product).images.length) {
+    if (currentIndexImages[1] < (product as ProductType).images.length) {
       setCurrentIndexImages((prev) => [prev[0] + 1, prev[1] + 1])
     }
   }
@@ -82,6 +86,10 @@ export default function ProductDetails() {
     imageRef.current?.removeAttribute('style')
   }
 
+  const handleBuyCount = (value: number) => {
+    setBuyCount(value)
+  }
+
   if (!product) return null
   return (
     <div className='bg-gray-200 py-6'>
@@ -112,6 +120,7 @@ export default function ProductDetails() {
                     strokeWidth={1.5}
                     stroke='currentColor'
                     className='h-5 w-5'
+                    onClick={prev}
                   >
                     <path strokeLinecap='round' strokeLinejoin='round' d='M15.75 19.5L8.25 12l7.5-7.5' />
                   </svg>
@@ -194,39 +203,13 @@ export default function ProductDetails() {
                 <div className='capitalize text-gray-500'>Quanity</div>
 
                 {/* Quantity Input */}
-                <div className='ml-10 flex items-center'>
-                  <button className='flex h-8 w-8 items-center justify-center rounded-l-sm border border-gray-300 text-gray-600'>
-                    <svg
-                      xmlns='http://www.w3.org/2000/svg'
-                      fill='none'
-                      viewBox='0 0 24 24'
-                      strokeWidth={1.5}
-                      stroke='currentColor'
-                      className='h-4 w-4'
-                    >
-                      <path strokeLinecap='round' strokeLinejoin='round' d='M19.5 12h-15' />
-                    </svg>
-                  </button>
-                  <InputNumber
-                    value={1}
-                    className=''
-                    classNameError='hidden'
-                    classNameInput='h-8 w-14 border-t border-b border-gray-300 p-1 text-center outline-none'
-                  />
-
-                  <button className='flex h-8 w-8 items-center justify-center rounded-r-sm border border-gray-300 text-gray-600'>
-                    <svg
-                      xmlns='http://www.w3.org/2000/svg'
-                      fill='none'
-                      viewBox='0 0 24 24'
-                      strokeWidth={1.5}
-                      stroke='currentColor'
-                      className='h-4 w-4'
-                    >
-                      <path strokeLinecap='round' strokeLinejoin='round' d='M12 4.5v15m7.5-7.5h-15' />
-                    </svg>
-                  </button>
-                </div>
+                <QuantityController
+                  onDecrease={handleBuyCount}
+                  onIncrease={handleBuyCount}
+                  onType={handleBuyCount}
+                  value={buyCount}
+                  max={product.quantity}
+                />
 
                 {/*  Quantity left */}
                 <div className='ml-6 text-sm'>{product?.quantity} items left</div>
@@ -280,6 +263,18 @@ export default function ProductDetails() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+      <div className='mt-8'>
+        <div className='container'>
+          <div className='uppercase text-gray-600'>Related Products</div>
+          <div className='mt-6 grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6'>
+            {productsData?.data.data.products.map((product) => (
+              <div className='col-span-1' key={product._id}>
+                <Product product={product} />
+              </div>
+            ))}
           </div>
         </div>
       </div>
