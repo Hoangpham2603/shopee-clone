@@ -145,7 +145,7 @@ export default function MainHeader() {
             >
               <div className='mr-2 h-6 w-5 flex-shrink-0'>
                 <img
-                  src='https://pbs.twimg.com/media/FwX0f5KaMAAVS2x?format=jpg&name=large'
+                  src='https://i.pinimg.com/564x/6c/25/69/6c256939b7c9dc7e93118a768fd23f3c.jpg'
                   alt='avatar'
                   className='h-full w-full rounded-full object-cover'
                 />
