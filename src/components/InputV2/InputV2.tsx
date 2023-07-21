@@ -1,39 +1,50 @@
-import { InputHTMLAttributes, forwardRef, useState } from 'react'
-export interface InputNumberProps extends InputHTMLAttributes<HTMLInputElement> {
-  errorMessage?: string
+import { InputHTMLAttributes, useState } from 'react'
+import { FieldValues, FieldPath, useController, UseControllerProps } from 'react-hook-form'
+
+export type InputNumberProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+> = {
   classNameInput?: string
   classNameError?: string
-}
+} & InputHTMLAttributes<HTMLInputElement> &
+  UseControllerProps<TFieldValues, TName>
 
-const InputV2 = forwardRef<HTMLInputElement, InputNumberProps>(function InputNumberInner(
-  {
-    value = '',
-    errorMessage,
-    className,
-    classNameInput = 'w-full rounded-sm border border-gray-300 p-3 outline-none focus:border-gray-500 focus:shadow-sm',
-    classNameError = 'mt-1 min-h-[1.25rem] text-sm text-red-600',
+function InputV2<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+>(props: InputNumberProps<TFieldValues, TName>) {
+  const {
+    type,
     onChange,
+    className,
+    classNameInput = 'p-3 w-full outline-none border border-gray-300 focus:border-gray-500 rounded-sm focus:shadow-sm',
+    classNameError = 'mt-1 text-red-600 min-h-[1.25rem] text-sm',
+    value = '',
     ...rest
-  },
-  ref
-) {
-  const [localValue, setLocalValue] = useState<string>(value as string)
+  } = props
+  const { field, fieldState } = useController(props)
+  const [localValue, setLocalValue] = useState<string>(field.value)
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target
-    if (/^\d+$/.test(value) || value === '') {
-      // execute onChange callback from outside props
+    const valueFromInput = e.target.value
+    const numberCondition = type === 'number' && (/^\d+$/.test(valueFromInput) || valueFromInput === '')
+    if (numberCondition || type !== 'number') {
+      // Cập nhật localValue state
+      setLocalValue(valueFromInput)
+      // Gọi field.onChange để cập nhật vào state React Hook Form
+      field.onChange(e)
+      // Thực thi onChange callback từ bên ngoài truyền vào props
       onChange && onChange(e)
-      // update localValueState
-      setLocalValue(value)
     }
   }
 
   return (
     <div className={className}>
-      <input className={classNameInput} {...rest} onChange={handleChange} value={value || localValue} ref={ref} />
-
-      <div className={classNameError}>{errorMessage}</div>
+      <input className={classNameInput} {...rest} {...field} onChange={handleChange} value={value || localValue} />
+      <div className={classNameError}>{fieldState.error?.message}</div>
     </div>
   )
-})
+}
+
 export default InputV2

@@ -1,42 +1,20 @@
-import { Link, createSearchParams, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import Popover from '../Popover'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import authApi from '../../Api/auth.api'
+import { useQuery } from '@tanstack/react-query'
 import { AppContext } from '../../contexts/app.context'
 import { useContext } from 'react'
 import path from '../constants/path'
-import useQueryConfig from '../../hook/useQueryConfig'
-import { useForm } from 'react-hook-form'
-import { Schema, schema } from '../../utils/rules'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { omit } from 'lodash'
 import { purchasesStatus } from '../constants/purchase'
 import purchaseApi from '../../Api/purchase.api'
 import noproduct from '../../assets/img/no-product.png'
 import { formatCurrency } from '../../utils/utils'
+import NavHeader from '../NavHeader'
+import useSearchProducts from '../../hook/useSearchProducts'
 
-type FormData = Pick<Schema, 'name'>
-
-const nameSchema = schema.pick(['name'])
 const MAXPRODUCTPOPOVER = 5
-
 export default function MainHeader() {
-  const navigate = useNavigate()
-  const queryConfig = useQueryConfig()
-  const { register, handleSubmit } = useForm<FormData>({
-    defaultValues: {
-      name: ''
-    },
-    resolver: yupResolver(nameSchema)
-  })
-  const { setIsAuthenticated, isAuthenticated, setProfile, profile } = useContext(AppContext)
-  const logoutMutation = useMutation({
-    mutationFn: authApi.logout,
-    onSuccess: () => {
-      setIsAuthenticated(false)
-      setProfile(null)
-    }
-  })
+  const { isAuthenticated } = useContext(AppContext)
+  const { onSubmitSearch, register } = useSearchProducts()
 
   //Khi chúng ta chuyển trang thì MainHeader chỉ bị re-render
   // chứ không bị unmount - mounting again
@@ -44,129 +22,17 @@ export default function MainHeader() {
   // nên các query này sẽ không bị inactive => không bị gọi lại => không cần thiết phải set stale là infinity
   const { data: purchasesInCartData } = useQuery({
     queryKey: ['purchases', { status: purchasesStatus.inCart }],
-    queryFn: () => purchaseApi.getPurchases({ status: purchasesStatus.inCart })
+    queryFn: () => purchaseApi.getPurchases({ status: purchasesStatus.inCart }),
+    enabled: isAuthenticated
   })
 
   const purchasesInCart = purchasesInCartData?.data.data
 
-  const handleLogout = () => {
-    logoutMutation.mutate()
-  }
-
-  const onSubmitSearch = handleSubmit((data) => {
-    const config = queryConfig.order
-      ? omit(
-          {
-            ...queryConfig,
-            name: data.name
-          },
-          ['order', 'sortby']
-        )
-      : {
-          ...queryConfig,
-          name: data.name
-        }
-    navigate({
-      pathname: path.home,
-      search: createSearchParams(config).toString()
-    })
-  })
   //                        MAIN
   return (
     <div className='bg-[linear-gradient(-180deg,#f53d2d,#f63)] pb-5 pt-2 text-white'>
       <div className='container'>
-        <div className='flex justify-end '>
-          <Popover
-            className='ml-6 flex cursor-pointer items-center py-1 hover:text-gray-300'
-            renderPopover={
-              <div className='relative rounded-sm border border-gray-200 bg-white shadow-md'>
-                <div className='flex flex-col px-3 py-2'>
-                  <button className='px-3 py-2 hover:text-orange'>English</button>
-                  <button className='px-3 py-2 hover:text-orange'>Vietnamese</button>
-                </div>
-              </div>
-            }
-          >
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-              strokeWidth={1.5}
-              stroke='currentColor'
-              className='h-5 w-5'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                d='M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418'
-              />
-            </svg>
-            <span className='mx-1'>Vietnamese </span>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-              strokeWidth={1.5}
-              stroke='currentColor'
-              className='h-5 w-5'
-            >
-              <path strokeLinecap='round' strokeLinejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5' />
-            </svg>
-          </Popover>
-
-          {isAuthenticated && (
-            <Popover
-              className='ml-6 flex cursor-pointer items-center py-1 hover:text-gray-300'
-              renderPopover={
-                <div className='relative rounded-sm border border-gray-200 bg-white shadow-md'>
-                  <Link
-                    to={path.profile}
-                    className='block w-full bg-white px-3 py-2 text-left hover:bg-slate-100 hover:text-cyan-500'
-                  >
-                    My Account
-                  </Link>
-
-                  <Link
-                    to='/'
-                    className='block w-full bg-white px-3 py-2 text-left hover:bg-slate-100 hover:text-cyan-500'
-                  >
-                    Carts
-                  </Link>
-
-                  <Link
-                    onClick={handleLogout}
-                    to='/'
-                    className='block w-full bg-white px-3 py-2 text-left hover:bg-slate-100 hover:text-cyan-500'
-                  >
-                    Logout
-                  </Link>
-                </div>
-              }
-            >
-              <div className='mr-2 h-6 w-5 flex-shrink-0'>
-                <img
-                  src='https://i.pinimg.com/564x/6c/25/69/6c256939b7c9dc7e93118a768fd23f3c.jpg'
-                  alt='avatar'
-                  className='h-full w-full rounded-full object-cover'
-                />
-              </div>
-              <div className='ml-3 flex cursor-pointer items-center py-1 hover:text-gray-300'>
-                <div>{profile?.email}</div>
-              </div>
-            </Popover>
-          )}
-          {!isAuthenticated && (
-            <div className='flex items-center'>
-              <Link to={path.register} className='mx-3 capitalize opacity-70 hover:text-white'>
-                Sign Up{' '}
-              </Link>
-              <div className='h-4 border-r-[1px] border-r-white/40 '></div>
-              <Link to={path.login} className='mx-3 capitalize opacity-70 hover:text-white'>
-                Sign in{' '}
-              </Link>
-            </div>
-          )}
-        </div>
+        <NavHeader />
 
         <div className='mt-4 grid grid-cols-12 items-end gap-4'>
           <Link to='/' className='col-span-2'>
@@ -240,13 +106,16 @@ export default function MainHeader() {
                           add to cart
                         </div>
 
-                        <button className='rounded-sm bg-orange px-4 py-2 capitalize text-white hover:bg-opacity-80'>
+                        <Link
+                          to={path.cart}
+                          className='rounded-sm bg-orange px-4 py-2 capitalize text-white hover:bg-opacity-80'
+                        >
                           Cart
-                        </button>
+                        </Link>
                       </div>
                     </div>
                   ) : (
-                    <div className='flex h-[300px] w-[300px] items-center justify-center p-2'>
+                    <div className='flex h-[300px] w-[300px] flex-col items-center justify-center p-2'>
                       <img src={noproduct} alt='no product' className='h-24 w-24' />
                       <div className='mt-3'>Nothing in Cart</div>
                     </div>
@@ -269,9 +138,11 @@ export default function MainHeader() {
                     d='M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z'
                   />
                 </svg>
-                <span className='absolute right-[-10px] top-[-5px] rounded-full bg-white px-[9px] py-[1px] text-xs text-orange'>
-                  {purchasesInCart?.length}
-                </span>
+                {purchasesInCart && (
+                  <span className='absolute right-[-10px] top-[-5px] rounded-full bg-white px-[9px] py-[1px] text-xs text-orange'>
+                    {purchasesInCart?.length}
+                  </span>
+                )}
               </Link>
             </Popover>
           </div>

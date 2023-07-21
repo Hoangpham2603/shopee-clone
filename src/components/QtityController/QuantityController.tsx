@@ -7,11 +7,13 @@ interface Props extends InputNumberProps {
   onDecrease?: (value: number) => void
   onType?: (value: number) => void
   classNameWrapper?: string
+  onFocusOut?: (value: number) => void
 }
 
 export default function QuantityController({
   max,
   onIncrease,
+  onFocusOut,
   onDecrease,
   onType,
   value,
@@ -48,6 +50,10 @@ export default function QuantityController({
     setLocalValue(_value)
   }
 
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement, Element>) => {
+    onFocusOut && onFocusOut(Number(e.target.value))
+  }
+
   // Main
   return (
     <div className={'flex items-center' + classNameWrapper}>
@@ -73,6 +79,7 @@ export default function QuantityController({
         classNameError='hidden'
         classNameInput='h-8 w-14 border-t border-b border-gray-300 p-1 text-center outline-none'
         {...rest}
+        onBlur={handleBlur}
       />
 
       <button

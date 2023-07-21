@@ -65,28 +65,31 @@ function testPriceMinMax(this: yup.TestContext<yup.AnyObject>) {
 export const schema = yup.object({
   email: yup
     .string()
-    .required('Email is required')
-    .email('invalid Email')
-    .min(5, '6-160 characters')
-    .max(160, '6-160 characters'),
-  password: yup.string().required('please input your password').min(5, '6-160 characters').max(160, '6-160 characters'),
+    .required('Email is require')
+    .email('Invalid Email')
+    .min(5, 'Độ dài từ 5 - 160 ký tự')
+    .max(160, 'Độ dài từ 5 - 160 ký tự'),
+  password: yup
+    .string()
+    .required('Password is require')
+    .min(6, 'Độ dài từ 6 - 160 ký tự')
+    .max(160, 'Độ dài từ 6 - 160 ký tự'),
   confirm_password: yup
     .string()
     .required('please confirm your password')
     .min(5, '6-160 characters')
-    .max(160, '6-160 characters')
-    .oneOf([yup.ref('password')], 'password not match'),
+    .max(160, '6-160 characters'),
   price_min: yup.string().test({
     name: 'price-not-allowed',
-    message: 'Price is not valid',
+    message: 'Invalid Price',
     test: testPriceMinMax
   }),
   price_max: yup.string().test({
     name: 'price-not-allowed',
-    message: 'Price is not valid',
+    message: 'Invalid Price',
     test: testPriceMinMax
   }),
-  name: yup.string().trim().required('Tên Sản Phẩm')
+  name: yup.string().trim().required('Tên sản phẩm là bắt buộc')
 })
 
 export type Schema = yup.InferType<typeof schema>
