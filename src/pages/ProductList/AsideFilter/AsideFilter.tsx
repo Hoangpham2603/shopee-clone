@@ -14,7 +14,7 @@ import classNames from 'classnames'
 import { QueryConfig } from '../../../hook/useQueryConfig'
 interface Props {
   queryConfig: QueryConfig
-  categories: Category[] | []
+  categories: Category[]
 }
 
 type FormData = NoUndefinedFiled<Pick<Schema, 'price_min' | 'price_max'>>
@@ -33,6 +33,7 @@ export default function AsideFilter({ queryConfig, categories }: Props) {
     control,
     handleSubmit,
     trigger,
+    reset,
     formState: { errors }
   } = useForm<FormData>({
     defaultValues: {
@@ -57,6 +58,7 @@ export default function AsideFilter({ queryConfig, categories }: Props) {
   })
 
   const handleRemoveAll = () => {
+    reset()
     navigate({
       pathname: path.home,
       search: createSearchParams(omit(queryConfig, ['price', 'price_max', 'rating_filter', 'category'])).toString()
@@ -141,23 +143,22 @@ export default function AsideFilter({ queryConfig, categories }: Props) {
               render={({ field }) => {
                 return (
                   <InputNumber
+                    type='number'
+                    className='grow'
+                    placeholder='$ from'
+                    classNameInput='p-1 w-full outline-none border border-gray-300 focus:border-gray-500 rounded-sm focus:shadow-sm'
                     classNameError='hidden'
-                    ref={field.ref}
-                    value={field.value}
-                    onChange={(e) => {
-                      field.onChange(e)
+                    {...field}
+                    onChange={(event) => {
+                      field.onChange(event)
                       trigger('price_max')
                     }}
-                    placeholder='$ from'
-                    type='text'
-                    className='grow'
-                    classNameInput='w-full rounded-sm border border-gray-300 p-1 outline-none focus:border-gray-500 focus:shadow-sm'
                   />
                 )
               }}
             />
 
-            <div className='mx-2 mt-2 shrink-0'>-</div>
+            <div className='mx-2 mt-2 flex shrink-0'> - </div>
 
             <Controller
               control={control}
@@ -165,22 +166,21 @@ export default function AsideFilter({ queryConfig, categories }: Props) {
               render={({ field }) => {
                 return (
                   <InputNumber
+                    type='number'
+                    className='grow'
+                    placeholder='$ to'
+                    classNameInput='p-1 w-full outline-none border border-gray-300 focus:border-gray-500 rounded-sm focus:shadow-sm'
                     classNameError='hidden'
-                    ref={field.ref}
-                    value={field.value}
-                    onChange={(e) => {
-                      field.onChange(e)
+                    {...field}
+                    onChange={(event) => {
+                      field.onChange(event)
                       trigger('price_min')
                     }}
-                    placeholder='$ to'
-                    type='text'
-                    className='grow'
-                    classNameInput='w-full rounded-sm border border-gray-300 p-1 outline-none focus:border-gray-500 focus:shadow-sm'
                   />
                 )
               }}
             />
-            <Button className='hover:bg-orange-80 flex w-full items-center justify-center bg-orange p-2 text-sm uppercase text-white'>
+            <Button className='hover:bg-orange-80 ml-3 flex w-full items-center justify-center bg-orange p-1 text-sm uppercase text-white'>
               Apply
             </Button>
           </div>

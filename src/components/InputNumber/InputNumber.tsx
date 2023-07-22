@@ -1,4 +1,4 @@
-import { InputHTMLAttributes, forwardRef } from 'react'
+import { InputHTMLAttributes, forwardRef, useState } from 'react'
 export interface InputNumberProps extends InputHTMLAttributes<HTMLInputElement> {
   errorMessage?: string
   classNameInput?: string
@@ -7,6 +7,7 @@ export interface InputNumberProps extends InputHTMLAttributes<HTMLInputElement> 
 
 const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(function InputNumberInner(
   {
+    value = '',
     errorMessage,
     className,
     classNameInput = 'w-full rounded-sm border border-gray-300 p-3 outline-none focus:border-gray-500 focus:shadow-sm',
@@ -16,17 +17,20 @@ const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(function Inpu
   },
   ref
 ) {
+  const [localValue, setLocalValue] = useState<string>(value as string)
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target
-    if ((/^\d+$/.test(value) || value === '') && onChange) {
-      onChange(e)
+    if (/^\d+$/.test(value) || value === '') {
+      // execute onChange callback from outside props
+      onChange && onChange(e)
+      // update localValueState
+      setLocalValue(value)
     }
   }
 
   return (
     <div className={className}>
-      <input className={classNameInput} {...rest} onChange={handleChange} ref={ref} />
-
+      <input className={classNameInput} onChange={handleChange} value={value || localValue} {...rest} ref={ref} />
       <div className={classNameError}>{errorMessage}</div>
     </div>
   )
