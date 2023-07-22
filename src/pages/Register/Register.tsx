@@ -31,6 +31,7 @@ export default function Register() {
     mutationFn: (body: Omit<FormData, 'confirm_password'>) => autApi.registerAccount(body)
   })
 
+  // data from Form.
   const onSubmit = handleSubmit((data) => {
     const body = omit(data, ['confirm_password'])
     registerAccountMutation.mutate(body, {

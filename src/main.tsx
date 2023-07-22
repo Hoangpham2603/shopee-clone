@@ -10,7 +10,8 @@ import { AppProvider } from './contexts/app.context'
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false
+      refetchOnWindowFocus: false,
+      retry: 0
     }
   }
 })
@@ -21,7 +22,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
         <AppProvider>
           <App />
         </AppProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
+        <ReactQueryDevtools initialIsOpen={true} />
       </QueryClientProvider>
     </BrowserRouter>
   </React.StrictMode>
