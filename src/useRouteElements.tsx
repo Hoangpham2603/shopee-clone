@@ -11,6 +11,8 @@ import { AppContext } from './contexts/app.context'
 import ProductDetails from './pages/ProductList/ProductDetails'
 import Cart from './pages/Cart'
 import CartLayout from './layout/CartLayout'
+import UserLayout from './pages/User/Layout/UserLayout'
+import ChangePassword from './pages/User/pages/ChangePassword'
 
 function ProtectedRoutes() {
   const { isAuthenticated } = useContext(AppContext)
@@ -52,6 +54,26 @@ export default function useRouteElements() {
           element: (
             <MainLayout>
               <Profile />
+            </MainLayout>
+          )
+        },
+        {
+          path: path.profile,
+          element: (
+            <MainLayout>
+              <UserLayout>
+                <Profile />
+              </UserLayout>
+            </MainLayout>
+          )
+        },
+        {
+          path: path.changePassword,
+          element: (
+            <MainLayout>
+              <UserLayout>
+                <ChangePassword />
+              </UserLayout>
             </MainLayout>
           )
         },
