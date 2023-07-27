@@ -12,6 +12,7 @@ import RatingStars from '../RatingStarts'
 import { omit } from 'lodash'
 import classNames from 'classnames'
 import { QueryConfig } from '../../../hook/useQueryConfig'
+import { ObjectSchema } from 'yup'
 interface Props {
   queryConfig: QueryConfig
   categories: Category[]
@@ -40,7 +41,7 @@ export default function AsideFilter({ queryConfig, categories }: Props) {
       price_min: '',
       price_max: ''
     },
-    resolver: yupResolver(priceSchema),
+    resolver: yupResolver<FormData>(priceSchema as ObjectSchema<FormData>),
     shouldFocusError: false
   })
 
