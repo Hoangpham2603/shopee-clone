@@ -1,5 +1,6 @@
 const path = {
   home: '/',
+  user: '/user',
   profile: '/user/profile',
   changePassword: '/user/password',
   historyPurchases: '/user/purchases',

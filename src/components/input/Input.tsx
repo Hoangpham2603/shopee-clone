@@ -1,7 +1,7 @@
 import { InputHTMLAttributes } from 'react'
 import type { UseFormRegister, RegisterOptions } from 'react-hook-form'
 interface Props extends InputHTMLAttributes<HTMLInputElement> {
-  type: React.HTMLInputTypeAttribute
+  type?: React.HTMLInputTypeAttribute
   errorMessage?: string
   register?: UseFormRegister<any>
   rules?: RegisterOptions

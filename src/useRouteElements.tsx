@@ -5,7 +5,7 @@ import Register from './pages/Register'
 import RegisterLayout from './layout/RegisterLayout'
 import path from './components/constants/path'
 import MainLayout from './layout/MainLayout'
-import Profile from './pages/Profile'
+import Profile from './pages/User/pages/Profile'
 import { useContext } from 'react'
 import { AppContext } from './contexts/app.context'
 import ProductDetails from './pages/ProductList/ProductDetails'
@@ -13,6 +13,7 @@ import Cart from './pages/Cart'
 import CartLayout from './layout/CartLayout'
 import UserLayout from './pages/User/Layout/UserLayout'
 import ChangePassword from './pages/User/pages/ChangePassword'
+import HistoryPurchases from './pages/User/pages/HistoryPurchases'
 
 function ProtectedRoutes() {
   const { isAuthenticated } = useContext(AppContext)
@@ -50,34 +51,6 @@ export default function useRouteElements() {
       element: <ProtectedRoutes />,
       children: [
         {
-          path: path.profile,
-          element: (
-            <MainLayout>
-              <Profile />
-            </MainLayout>
-          )
-        },
-        {
-          path: path.profile,
-          element: (
-            <MainLayout>
-              <UserLayout>
-                <Profile />
-              </UserLayout>
-            </MainLayout>
-          )
-        },
-        {
-          path: path.changePassword,
-          element: (
-            <MainLayout>
-              <UserLayout>
-                <ChangePassword />
-              </UserLayout>
-            </MainLayout>
-          )
-        },
-        {
           path: path.cart,
           element: (
             <CartLayout>
@@ -92,6 +65,28 @@ export default function useRouteElements() {
               <Cart />
             </MainLayout>
           )
+        },
+        {
+          path: path.user,
+          element: (
+            <MainLayout>
+              <UserLayout />
+            </MainLayout>
+          ),
+          children: [
+            {
+              path: path.profile,
+              element: <Profile />
+            },
+            {
+              path: path.changePassword,
+              element: <ChangePassword />
+            },
+            {
+              path: path.historyPurchases,
+              element: <HistoryPurchases />
+            }
+          ]
         }
       ]
     },
