@@ -1,16 +1,16 @@
+import { useContext } from 'react'
 import path from '../../../../components/constants/path'
 import { Link } from 'react-router-dom'
+import { AppContext } from '../../../../contexts/app.context'
+import { getAvatarURL } from '../../../../utils/utils'
 
 export default function UserSideNav() {
+  const { profile } = useContext(AppContext)
   return (
     <div>
       <div className='flex items-center border-b border-b-gray-300 py-4'>
         <Link to={path.profile} className='h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border border-black/20'>
-          <img
-            src='https://i.pinimg.com/564x/6c/25/69/6c256939b7c9dc7e93118a768fd23f3c.jpg'
-            alt='profile pic'
-            className='h-full w-full object-cover'
-          />
+          <img src={getAvatarURL(profile?.avatar)} alt='profile pic' className='h-full w-full object-cover' />
         </Link>
         <div className='flex-grow pl-4'>
           <div className='font-semi-bold mb-1 truncate text-gray-600'>leanhkhoa1995</div>

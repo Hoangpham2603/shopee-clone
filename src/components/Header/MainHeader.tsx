@@ -13,7 +13,7 @@ import useSearchProducts from '../../hook/useSearchProducts'
 
 const MAXPRODUCTPOPOVER = 5
 export default function MainHeader() {
-  const { isAuthenticated } = useContext(AppContext)
+  const { isAuthenticated, profile } = useContext(AppContext)
   const { onSubmitSearch, register } = useSearchProducts()
 
   //Khi chúng ta chuyển trang thì MainHeader chỉ bị re-render

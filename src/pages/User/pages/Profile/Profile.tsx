@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useForm, Controller } from 'react-hook-form'
 import { UserSchema, userSchema } from '../../../../utils/rules'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -6,20 +6,37 @@ import Button from '../../../../components/Button'
 import Input from '../../../../components/input'
 import userApi from '../../../../Api/user.api'
 import InputNumber from '../../../../components/InputNumber'
-import { useEffect } from 'react'
+import { useContext, useEffect, useMemo, useRef, useState } from 'react'
+import DateSelect from '../../Components/DateSelect'
+import { toast } from 'react-toastify'
+import { AppContext } from '../../../../contexts/app.context'
+import { setProfileToLS } from '../../../../utils/auth'
+import { getAvatarURL, isAxiosUnprocessableEntityError } from '../../../../utils/utils'
+import { ErrorResponse } from '../../../../types/utils.type'
+import config from '../../../../components/constants/config'
 
 type FormData = Pick<UserSchema, 'name' | 'address' | 'phone' | 'date_of_birth' | 'avatar'>
+type FormDataError = Omit<FormData, 'date_of_birth'> & {
+  date_of_birth?: string
+}
 
 const profileSchema = userSchema.pick(['name', 'address', 'phone', 'date_of_birth', 'avatar'])
 
 export default function Profile() {
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const { setProfile } = useContext(AppContext)
+  const [file, setFile] = useState<File>()
+  const previewImg = useMemo(() => {
+    return file ? URL.createObjectURL(file) : ''
+  }, [file])
   const {
     register,
     control,
     handleSubmit,
     formState: { errors },
     setValue,
-    watch
+    watch,
+    setError
   } = useForm<FormData>({
     defaultValues: {
       name: '',
@@ -30,13 +47,17 @@ export default function Profile() {
     resolver: yupResolver<FormData>(profileSchema)
   })
 
-  const { data: profileData } = useQuery({
+  const avatar = watch('avatar')
+
+  const { data: profileData, refetch } = useQuery({
     queryKey: ['profile'],
     queryFn: userApi.getProfile
   })
 
   const profile = profileData?.data.data
-  console.log('profile', profile)
+
+  const updateProfileMutation = useMutation(userApi.updateProfile)
+  const uploadAvatar = useMutation(userApi.uploadAvatar)
 
   useEffect(() => {
     if (profile) {
@@ -48,6 +69,63 @@ export default function Profile() {
     }
   }, [profile, setValue])
 
+  //* Flow 1:
+  // Nhấn upload: upload lên server luôn => server trả về url ảnh
+  // Nhấn submit thì gửi url ảnh cộng với data lên server
+
+  //* Flow 2:
+  // Nhấn upload: không upload lên server
+  // Nhấn submit thì tiến hành upload lên server, nếu upload thành công thì tiến hành gọi api updateProfile
+
+  const onSubmit = handleSubmit(async (data) => {
+    try {
+      let avatarName = avatar
+      if (file) {
+        const form = new FormData() //* FormData from JavaScript not our FormData Type.
+        form.append('image', file)
+        const uploadRes = await uploadAvatar.mutateAsync(form)
+        avatarName = uploadRes.data.data
+        setValue('avatar', avatarName)
+      }
+      const res = await updateProfileMutation.mutateAsync({
+        ...data,
+        date_of_birth: data.date_of_birth?.toISOString(),
+        avatar: avatarName
+      })
+
+      setProfileToLS(res.data.data)
+      setProfile(res.data.data)
+      refetch()
+      toast.success(res.data.message, { autoClose: 1000 })
+    } catch (error) {
+      if (isAxiosUnprocessableEntityError<ErrorResponse<FormDataError>>(error)) {
+        const formError = error.response?.data.data
+        if (formError) {
+          Object.keys(formError).forEach((key) => {
+            setError(key as keyof FormDataError, {
+              message: formError[key as keyof FormDataError],
+              type: 'Server'
+            })
+          })
+        }
+      }
+    }
+  })
+
+  const handleOnFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fileFromLocal = e.target.files?.[0]
+    if ((fileFromLocal && fileFromLocal >= config.maxSizeUploadAvatar) || !fileFromLocal.type.includes('image')) {
+      toast.error('invalid img type')
+    } else {
+      setFile(fileFromLocal)
+    }
+  }
+
+  const handleUpload = () => {
+    fileInputRef.current?.click()
+  }
+
+  //*                                   MAIN
   return (
     <div className='rounded-sm bg-white px-7 pb-10 shadow md:px-2 md:pb-20'>
       <div className='border-b border-gray-200 py-6'>
@@ -55,17 +133,17 @@ export default function Profile() {
         <div className='mt-1 text-sm text-gray-700'>Manage Account</div>
       </div>
       {/*                   FORM */}
-      <form className='mt-8 flex flex-col-reverse md:flex-row md:items-start'>
+      <form className='mt-8 flex flex-col-reverse md:flex-row md:items-start' onSubmit={onSubmit}>
         <div className='mt-6 flex-grow md:mt-0 md:pr-12'>
           <div className='flex flex-col flex-wrap sm:flex-row'>
-            <div className='truncate pt-3  capitalize sm:w-[20%] sm:text-right'>Email: </div>
+            <div className='truncate pt-3 text-center  capitalize sm:w-[20%]'>Email</div>
             <div className='sm:w-[80%] sm:pl-5'>
               <div className='pt-3 text-gray-700'>{profile?.email}</div>
             </div>
           </div>
 
           <div className='mt-6 flex flex-col flex-wrap sm:flex-row'>
-            <div className='truncate pt-3 text-left capitalize sm:w-[20%]'>Name</div>
+            <div className='truncate pt-3 capitalize  sm:w-[20%] sm:text-left lg:text-center'>Name</div>
             <div className='sm:w-[80%] sm:pl-5'>
               <Input
                 classNameInput='w-full rounded-sm border border-gray-300 px-3 py-2  outline-none focus:border-gray-500 focus:shadow-sm'
@@ -78,7 +156,7 @@ export default function Profile() {
           </div>
 
           <div className='mt-2 flex flex-col flex-wrap sm:flex-row'>
-            <div className='truncate pt-3 text-left capitalize sm:w-[20%]'>Phone Number</div>
+            <div className='truncate pt-3 capitalize sm:w-[20%] lg:text-center'>Phone Number</div>
             <div className='sm:w-[80%] sm:pl-5'>
               <Controller
                 control={control}
@@ -98,7 +176,7 @@ export default function Profile() {
           </div>
 
           <div className='mt-2 flex flex-col flex-wrap sm:flex-row'>
-            <div className='truncate pt-3 text-left capitalize sm:w-[20%]'>Address</div>
+            <div className='truncate pt-3 capitalize sm:w-[20%] lg:text-center'>Address</div>
             <div className='sm:w-[80%] sm:pl-5'>
               <Input
                 classNameInput='w-full rounded-sm border border-gray-300 px-3 py-2  outline-none focus:border-gray-500 focus:shadow-sm'
@@ -110,27 +188,18 @@ export default function Profile() {
             </div>
           </div>
 
-          <div className='mt-2 flex flex-col flex-wrap sm:flex-row'>
-            <div className='w-[20%] truncate pt-3 text-left capitalize'>Date of Birth</div>
-            <div className='flex justify-between sm:pl-5'>
-              <select name='' className='h-10 w-[32%] rounded-sm border-black/10 px-3 '>
-                <option disabled>Date</option>
-              </select>
-
-              <select name='' className='h-10 w-[32%] rounded-sm border-black/10 px-3 '>
-                <option disabled>Months</option>
-              </select>
-
-              <select name='' className='h-10 w-[32%] rounded-sm border-black/10 px-3 '>
-                <option disabled>Years</option>
-              </select>
-            </div>
-          </div>
+          <Controller
+            control={control}
+            name='date_of_birth'
+            render={({ field }) => (
+              <DateSelect errorMessage={errors.date_of_birth?.message} value={field.value} onChange={field.onChange} />
+            )}
+          />
 
           <div className='mt-2 flex flex-col flex-wrap sm:flex-row'>
             <div className='w-[20%] truncate pt-3 text-left capitalize'>
               <div className='sm:w-[80%] sm:pl-5'>
-                <Button className='flex h-9 items-center bg-orange px-5 text-center text-sm text-white hover:bg-orange/80'>
+                <Button className='flex h-9 items-center rounded-sm bg-orange px-5 text-center text-sm text-white hover:bg-orange/80'>
                   Save
                 </Button>
               </div>
@@ -142,13 +211,22 @@ export default function Profile() {
           <div className='flex flex-col items-center'>
             <div className='my-5 h-24 w-24'>
               <img
-                src='https://i.pinimg.com/564x/6c/25/69/6c256939b7c9dc7e93118a768fd23f3c.jpg'
+                src={previewImg || getAvatarURL(avatar)}
                 alt=''
                 className='h-full w-full rounded-full object-cover'
               />
             </div>
-            <input type='file' accept='.jpg, .jpeg, .png' className='hidden' />
-            <button className='flex h-10 items-center  justify-end rounded-sm border bg-white px-6 text-sm text-gray-600 shadow-sm '>
+            <input
+              type='file'
+              accept='.jpg, .jpeg, .png'
+              className='hidden'
+              ref={fileInputRef}
+              onChange={handleOnFileChange}
+            />
+            <button
+              className='flex h-10 items-center  justify-end rounded-sm border bg-white px-6 text-sm text-gray-600 shadow-sm '
+              onClick={handleUpload}
+            >
               Upload
             </button>
             <div className='mt-3 text-gray-400'>maximum 1Mb</div>

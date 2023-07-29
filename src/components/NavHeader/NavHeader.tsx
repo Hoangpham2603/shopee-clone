@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import authApi from '../../Api/auth.api'
 import { purchasesStatus } from '../constants/purchase'
 import { useContext } from 'react'
+import { getAvatarURL } from '../../utils/utils'
 
 export default function NavHeader() {
   const { setIsAuthenticated, isAuthenticated, setProfile, profile } = useContext(AppContext)
@@ -95,11 +96,7 @@ export default function NavHeader() {
           }
         >
           <div className='mr-2 h-6 w-5 flex-shrink-0'>
-            <img
-              src='https://i.pinimg.com/564x/6c/25/69/6c256939b7c9dc7e93118a768fd23f3c.jpg'
-              alt='avatar'
-              className='h-full w-full rounded-full object-cover'
-            />
+            <img src={getAvatarURL(profile?.avatar)} alt='avatar' className='h-full w-full rounded-full object-cover' />
           </div>
           <div className='ml-3 flex cursor-pointer items-center py-1 hover:text-gray-300'>
             <div>{profile?.email}</div>
