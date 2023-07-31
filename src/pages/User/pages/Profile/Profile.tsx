@@ -6,14 +6,14 @@ import Button from '../../../../components/Button'
 import Input from '../../../../components/input'
 import userApi from '../../../../Api/user.api'
 import InputNumber from '../../../../components/InputNumber'
-import { useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import DateSelect from '../../Components/DateSelect'
 import { toast } from 'react-toastify'
 import { AppContext } from '../../../../contexts/app.context'
 import { setProfileToLS } from '../../../../utils/auth'
 import { getAvatarURL, isAxiosUnprocessableEntityError } from '../../../../utils/utils'
 import { ErrorResponse } from '../../../../types/utils.type'
-import config from '../../../../components/constants/config'
+import InputFile from '../../../../components/InputFile'
 
 type FormData = Pick<UserSchema, 'name' | 'address' | 'phone' | 'date_of_birth' | 'avatar'>
 type FormDataError = Omit<FormData, 'date_of_birth'> & {
@@ -23,7 +23,6 @@ type FormDataError = Omit<FormData, 'date_of_birth'> & {
 const profileSchema = userSchema.pick(['name', 'address', 'phone', 'date_of_birth', 'avatar'])
 
 export default function Profile() {
-  const fileInputRef = useRef<HTMLInputElement>(null)
   const { setProfile } = useContext(AppContext)
   const [file, setFile] = useState<File>()
   const previewImg = useMemo(() => {
@@ -112,17 +111,8 @@ export default function Profile() {
     }
   })
 
-  const handleOnFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const fileFromLocal = e.target.files?.[0]
-    if ((fileFromLocal && fileFromLocal >= config.maxSizeUploadAvatar) || !fileFromLocal.type.includes('image')) {
-      toast.error('invalid img type')
-    } else {
-      setFile(fileFromLocal)
-    }
-  }
-
-  const handleUpload = () => {
-    fileInputRef.current?.click()
+  const handleChangeFile = (file?: File) => {
+    setFile(file)
   }
 
   //*                                   MAIN
@@ -216,19 +206,7 @@ export default function Profile() {
                 className='h-full w-full rounded-full object-cover'
               />
             </div>
-            <input
-              type='file'
-              accept='.jpg, .jpeg, .png'
-              className='hidden'
-              ref={fileInputRef}
-              onChange={handleOnFileChange}
-            />
-            <button
-              className='flex h-10 items-center  justify-end rounded-sm border bg-white px-6 text-sm text-gray-600 shadow-sm '
-              onClick={handleUpload}
-            >
-              Upload
-            </button>
+            <InputFile onChange={handleChangeFile} />
             <div className='mt-3 text-gray-400'>maximum 1Mb</div>
           </div>
         </div>
