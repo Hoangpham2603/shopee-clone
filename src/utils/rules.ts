@@ -62,6 +62,15 @@ function testPriceMinMax(this: yup.TestContext<yup.AnyObject>) {
   return price_min !== '' || price_max !== ''
 }
 
+const handleConfirmPasswordYup = (refString: string) => {
+  return yup
+    .string()
+    .required('Nhập lại password là bắt buộc')
+    .min(6, 'Độ dài từ 6 - 160 ký tự')
+    .max(160, 'Độ dài từ 6 - 160 ký tự')
+    .oneOf([yup.ref(refString)], 'Nhập lại password không khớp')
+}
+
 export const schema = yup.object({
   email: yup
     .string()
@@ -97,9 +106,15 @@ export const userSchema = yup.object({
   phone: yup.string().max(20, 'max 20 characters').min(6, 'min 6 characters'),
   address: yup.string().max(20, '6-160 characters').min(6, '6-160 characters'),
   date_of_birth: yup.date().max(new Date(), "DOB can't be in the past"),
-  password: schema.fields['password'],
-  new_password: schema.fields['password'],
-  confirm_password: schema.fields['confirm_password'],
+  password: schema.fields['password'] as yup.StringSchema<string | undefined, yup.AnyObject, undefined, ''>,
+  new_password: schema.fields['password'] as yup.StringSchema<string | undefined, yup.AnyObject, undefined, ''>,
+
+  confirm_password: handleConfirmPasswordYup('new_password') as yup.StringSchema<
+    string | undefined,
+    yup.AnyObject,
+    undefined,
+    ''
+  >,
   avatar: yup.string().max(1000, 'max 1000 characters')
 })
 

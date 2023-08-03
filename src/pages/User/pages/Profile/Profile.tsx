@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useForm, Controller } from 'react-hook-form'
+import { useForm, Controller, FormProvider, useFormContext } from 'react-hook-form'
 import { UserSchema, userSchema } from '../../../../utils/rules'
 import { yupResolver } from '@hookform/resolvers/yup'
 import Button from '../../../../components/Button'
@@ -22,21 +22,70 @@ type FormDataError = Omit<FormData, 'date_of_birth'> & {
 
 const profileSchema = userSchema.pick(['name', 'address', 'phone', 'date_of_birth', 'avatar'])
 
+function Info() {
+  const {
+    register,
+    control,
+    formState: { errors }
+  } = useFormContext<FormData>()
+  return (
+    <>
+      <div className='mt-6 flex flex-col flex-wrap sm:flex-row'>
+        <div className='truncate pt-3 capitalize  sm:w-[20%] sm:text-left lg:text-center'>Name</div>
+        <div className='sm:w-[80%] sm:pl-5'>
+          <Input
+            classNameInput='w-full rounded-sm border border-gray-300 px-3 py-2  outline-none focus:border-gray-500 focus:shadow-sm'
+            register={register}
+            name='name'
+            placeholder='Your Name'
+            errorMessage={errors?.name?.message}
+          />
+        </div>
+      </div>
+
+      <div className='mt-2 flex flex-col flex-wrap sm:flex-row'>
+        <div className='truncate pt-3 capitalize sm:w-[20%] lg:text-center'>Phone Number</div>
+        <div className='sm:w-[80%] sm:pl-5'>
+          <Controller
+            control={control}
+            name='phone'
+            render={({ field }) => (
+              <InputNumber
+                classNameInput='w-full rounded-sm border border-gray-300 px-3 py-2  outline-none focus:border-gray-500 focus:shadow-sm'
+                placeholder='Phone Number'
+                errorMessage={errors?.phone?.message}
+                type='number'
+                {...field}
+                onChange={field.onChange}
+              />
+            )}
+          />
+        </div>
+      </div>
+
+      <div className='mt-2 flex flex-col flex-wrap sm:flex-row'>
+        <div className='truncate pt-3 capitalize sm:w-[20%] lg:text-center'>Address</div>
+        <div className='sm:w-[80%] sm:pl-5'>
+          <Input
+            classNameInput='w-full rounded-sm border border-gray-300 px-3 py-2  outline-none focus:border-gray-500 focus:shadow-sm'
+            register={register}
+            name='address'
+            placeholder='Address'
+            errorMessage={errors?.address?.message}
+          />
+        </div>
+      </div>
+    </>
+  )
+}
+
 export default function Profile() {
   const { setProfile } = useContext(AppContext)
   const [file, setFile] = useState<File>()
   const previewImg = useMemo(() => {
     return file ? URL.createObjectURL(file) : ''
   }, [file])
-  const {
-    register,
-    control,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-    watch,
-    setError
-  } = useForm<FormData>({
+  const method = useForm<FormData>({
     defaultValues: {
       name: '',
       phone: '',
@@ -45,6 +94,16 @@ export default function Profile() {
     },
     resolver: yupResolver<FormData>(profileSchema)
   })
+
+  const {
+    register,
+    control,
+    formState: { errors },
+    handleSubmit,
+    setValue,
+    watch,
+    setError
+  } = method
 
   const avatar = watch('avatar')
 
@@ -123,94 +182,69 @@ export default function Profile() {
         <div className='mt-1 text-sm text-gray-700'>Manage Account</div>
       </div>
       {/*                   FORM */}
-      <form className='mt-8 flex flex-col-reverse md:flex-row md:items-start' onSubmit={onSubmit}>
-        <div className='mt-6 flex-grow md:mt-0 md:pr-12'>
-          <div className='flex flex-col flex-wrap sm:flex-row'>
-            <div className='truncate pt-3 text-center  capitalize sm:w-[20%]'>Email</div>
-            <div className='sm:w-[80%] sm:pl-5'>
-              <div className='pt-3 text-gray-700'>{profile?.email}</div>
-            </div>
-          </div>
-
-          <div className='mt-6 flex flex-col flex-wrap sm:flex-row'>
-            <div className='truncate pt-3 capitalize  sm:w-[20%] sm:text-left lg:text-center'>Name</div>
-            <div className='sm:w-[80%] sm:pl-5'>
-              <Input
-                classNameInput='w-full rounded-sm border border-gray-300 px-3 py-2  outline-none focus:border-gray-500 focus:shadow-sm'
-                register={register}
-                name='name'
-                placeholder='Your Name'
-                errorMessage={errors?.name?.message}
-              />
-            </div>
-          </div>
-
-          <div className='mt-2 flex flex-col flex-wrap sm:flex-row'>
-            <div className='truncate pt-3 capitalize sm:w-[20%] lg:text-center'>Phone Number</div>
-            <div className='sm:w-[80%] sm:pl-5'>
-              <Controller
-                control={control}
-                name='phone'
-                render={({ field }) => (
-                  <InputNumber
-                    classNameInput='w-full rounded-sm border border-gray-300 px-3 py-2  outline-none focus:border-gray-500 focus:shadow-sm'
-                    placeholder='Phone Number'
-                    errorMessage={errors?.phone?.message}
-                    type='number'
-                    {...field}
-                    onChange={field.onChange}
-                  />
-                )}
-              />
-            </div>
-          </div>
-
-          <div className='mt-2 flex flex-col flex-wrap sm:flex-row'>
-            <div className='truncate pt-3 capitalize sm:w-[20%] lg:text-center'>Address</div>
-            <div className='sm:w-[80%] sm:pl-5'>
-              <Input
-                classNameInput='w-full rounded-sm border border-gray-300 px-3 py-2  outline-none focus:border-gray-500 focus:shadow-sm'
-                register={register}
-                name='address'
-                placeholder='Address'
-                errorMessage={errors?.address?.message}
-              />
-            </div>
-          </div>
-
-          <Controller
-            control={control}
-            name='date_of_birth'
-            render={({ field }) => (
-              <DateSelect errorMessage={errors.date_of_birth?.message} value={field.value} onChange={field.onChange} />
-            )}
-          />
-
-          <div className='mt-2 flex flex-col flex-wrap sm:flex-row'>
-            <div className='w-[20%] truncate pt-3 text-left capitalize'>
+      <FormProvider {...method}>
+        <form className='mt-8 flex flex-col-reverse md:flex-row md:items-start' onSubmit={onSubmit}>
+          <div className='mt-6 flex-grow md:mt-0 md:pr-12'>
+            <div className='flex flex-col flex-wrap sm:flex-row'>
+              <div className='truncate pt-3 text-center  capitalize sm:w-[20%]'>Email</div>
               <div className='sm:w-[80%] sm:pl-5'>
-                <Button className='flex h-9 items-center rounded-sm bg-orange px-5 text-center text-sm text-white hover:bg-orange/80'>
-                  Save
-                </Button>
+                <div className='pt-3 text-gray-700'>{profile?.email}</div>
+              </div>
+            </div>
+
+            <Info />
+
+            <div className='mt-2 flex flex-col flex-wrap sm:flex-row'>
+              <div className='truncate pt-3 capitalize sm:w-[20%] lg:text-center'>Address</div>
+              <div className='sm:w-[80%] sm:pl-5'>
+                <Input
+                  classNameInput='w-full rounded-sm border border-gray-300 px-3 py-2  outline-none focus:border-gray-500 focus:shadow-sm'
+                  register={register}
+                  name='address'
+                  placeholder='Address'
+                  errorMessage={errors?.address?.message}
+                />
+              </div>
+            </div>
+
+            <Controller
+              control={control}
+              name='date_of_birth'
+              render={({ field }) => (
+                <DateSelect
+                  errorMessage={errors.date_of_birth?.message}
+                  value={field.value}
+                  onChange={field.onChange}
+                />
+              )}
+            />
+
+            <div className='mt-2 flex flex-col flex-wrap sm:flex-row'>
+              <div className='w-[20%] truncate pt-3 text-left capitalize'>
+                <div className='sm:w-[80%] sm:pl-5'>
+                  <Button className='flex h-9 items-center rounded-sm bg-orange px-5 text-center text-sm text-white hover:bg-orange/80'>
+                    Save
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className='flex justify-center md:w-72 md:border-l md:border-l-gray-200'>
-          <div className='flex flex-col items-center'>
-            <div className='my-5 h-24 w-24'>
-              <img
-                src={previewImg || getAvatarURL(avatar)}
-                alt=''
-                className='h-full w-full rounded-full object-cover'
-              />
+          <div className='flex justify-center md:w-72 md:border-l md:border-l-gray-200'>
+            <div className='flex flex-col items-center'>
+              <div className='my-5 h-24 w-24'>
+                <img
+                  src={previewImg || getAvatarURL(avatar)}
+                  alt=''
+                  className='h-full w-full rounded-full object-cover'
+                />
+              </div>
+              <InputFile onChange={handleChangeFile} />
+              <div className='mt-3 text-gray-400'>maximum 1Mb</div>
             </div>
-            <InputFile onChange={handleChangeFile} />
-            <div className='mt-3 text-gray-400'>maximum 1Mb</div>
           </div>
-        </div>
-      </form>
+        </form>{' '}
+      </FormProvider>
     </div>
   )
 }
