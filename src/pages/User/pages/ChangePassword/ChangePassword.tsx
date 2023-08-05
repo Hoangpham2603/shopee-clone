@@ -65,7 +65,8 @@ export default function ChangePassword() {
             <div className='truncate pt-3 capitalize sm:w-[20%] lg:text-center'>Old Password</div>
             <div className='sm:w-[80%] sm:pl-5'>
               <Input
-                classNameInput='w-full rounded-sm border border-gray-300 px-3 py-2  outline-none focus:border-gray-500 focus:shadow-sm'
+                className='relative'
+                classNameInput=' w-full rounded-sm border border-gray-300 px-3 py-2  outline-none focus:border-gray-500 focus:shadow-sm'
                 register={register}
                 name='password'
                 type='password'
@@ -79,7 +80,8 @@ export default function ChangePassword() {
             <div className='truncate pt-3 capitalize sm:w-[20%] lg:text-center'>New Password</div>
             <div className='sm:w-[80%] sm:pl-5'>
               <Input
-                classNameInput='w-full rounded-sm border border-gray-300 px-3 py-2  outline-none focus:border-gray-500 focus:shadow-sm'
+                classNameInput=' w-full rounded-sm border border-gray-300 px-3 py-2  outline-none focus:border-gray-500 focus:shadow-sm'
+                className='relative'
                 register={register}
                 type='password'
                 name='new_password'
@@ -93,7 +95,8 @@ export default function ChangePassword() {
             <div className='truncate pt-3 capitalize sm:w-[20%] lg:text-center'>Confirm Password</div>
             <div className='sm:w-[80%] sm:pl-5'>
               <Input
-                classNameInput='w-full rounded-sm border border-gray-300 px-3 py-2  outline-none focus:border-gray-500 focus:shadow-sm'
+                classNameInput=' w-full rounded-sm border border-gray-300 px-3 py-2  outline-none focus:border-gray-500 focus:shadow-sm'
+                className='relative'
                 register={register}
                 name='confirm_password'
                 type='password'
