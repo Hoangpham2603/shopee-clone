@@ -16,7 +16,7 @@ export default function ({ children, className, renderPopover, as: Element = 'di
   const [open, setOpen] = useState(initialOpen || false)
   const arrowRef = useRef<HTMLElement>(null)
 
-  const { x, y, refs, floatingStyles, strategy, middlewareData } = useFloating({
+  const { x, y, refs, strategy, middlewareData } = useFloating({
     open,
     placement: placement,
     middleware: [

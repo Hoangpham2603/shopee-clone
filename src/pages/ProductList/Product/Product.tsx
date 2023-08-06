@@ -1,4 +1,3 @@
-import React from 'react'
 import { Link } from 'react-router-dom'
 import { Product as ProductType } from '../../../types/product.type'
 import { formatCurrency, formatNumberToSocialStyle, generateNameId } from '../../../utils/utils'

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 import config from '../constants/config'
 import { toast } from 'react-toastify'
 
@@ -8,7 +8,7 @@ interface Props {
 
 export default function InputFile({ onChange }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const [file, setFile] = useState<File>()
+  // const [file, setFile] = useState<File>()
 
   const handleOnFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileFromLocal = e.target.files?.[0]
