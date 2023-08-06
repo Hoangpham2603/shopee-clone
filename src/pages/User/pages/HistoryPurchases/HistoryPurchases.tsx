@@ -57,6 +57,7 @@ export default function HistoryPurchases() {
               to={`${path.home}${generateNameId({ name: item.product.name, id: item.product._id })}`}
               className='flex'
             >
+              <div className='flex-shrink-0'></div>
               {item.product.name}
             </Link>
           </div>
