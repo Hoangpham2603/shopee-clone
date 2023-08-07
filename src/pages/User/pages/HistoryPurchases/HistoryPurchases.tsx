@@ -6,7 +6,7 @@ import useQueryParams from '../../../../hook/useQueryParams'
 import { useQuery } from '@tanstack/react-query'
 import purchaseApi from '../../../../Api/purchase.api'
 import { PurchaseListStatus } from '../../../../types/purchase.type'
-import { generateNameId } from '../../../../utils/utils'
+import { formatCurrency, generateNameId } from '../../../../utils/utils'
 
 const purchaseTabs = [
   { status: purchasesStatus.all, name: 'All' },
@@ -57,9 +57,27 @@ export default function HistoryPurchases() {
               to={`${path.home}${generateNameId({ name: item.product.name, id: item.product._id })}`}
               className='flex'
             >
-              <div className='flex-shrink-0'></div>
-              {item.product.name}
+              <div className='flex-shrink-0'>
+                <img src={item.product.image} alt={item.product.name} className='h-20 w-20 object-cover' />
+              </div>
+
+              <div className='ml-3 flex-grow overflow-hidden'>
+                <div className='truncate'>{item.product.name}</div>
+                <div className='mt-3'>{item.buy_count}</div>
+                <div className='ml-3 flex-shrink-0'>
+                  <span className='truncate text-gray-500 line-through'>
+                    ${formatCurrency(item.product.price_before_discount)}
+                  </span>
+                  <span className='text-orange-500 truncate'>${formatCurrency(item.product.price)}</span>
+                </div>
+              </div>
             </Link>
+            <div className='flex justify-end'>
+              <div>
+                <span>Total</span>
+                <span className='ml-4 text-xl text-orange'>${formatCurrency(item.product.price * item.buy_count)}</span>
+              </div>
+            </div>
           </div>
         ))}
       </div>
