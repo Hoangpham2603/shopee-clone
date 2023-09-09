@@ -12,6 +12,8 @@ import purchaseApi from '../../../Api/purchase.api'
 import { purchasesStatus } from '../../../components/constants/purchase'
 import { toast } from 'react-toastify'
 import path from '../../../components/constants/path'
+import { Helmet } from 'react-helmet-async'
+import { convert } from 'html-to-text'
 
 export default function ProductDetails() {
   const navigate = useNavigate()
@@ -123,6 +125,10 @@ export default function ProductDetails() {
   if (!product) return null
   return (
     <div className='bg-gray-200 py-6'>
+      <Helmet>
+        <title>{product.name}</title>
+        <meta name='description' content={convert(product.description, { wordwrap: 120 })} />
+      </Helmet>
       <div className='container'>
         <div className='bg-white py-4 shadow'>
           <div className='grid grid-cols-12 gap-9'>

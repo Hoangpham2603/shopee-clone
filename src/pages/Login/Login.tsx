@@ -10,6 +10,7 @@ import authApi from '../../Api/auth.api'
 import { AppContext } from '../../contexts/app.context'
 import { useContext } from 'react'
 import Button from '../../components/Button'
+import { Helmet } from 'react-helmet-async'
 
 type FormData = Pick<Schema, 'email' | 'password'>
 const loginSchema = schema.pick(['email', 'password'])
@@ -71,6 +72,10 @@ export default function Login() {
   //                  MAIN
   return (
     <div className='bg-orange'>
+      <Helmet>
+        <title>Login Page</title>
+        <meta name='description' content='log in ' />
+      </Helmet>
       <div className='container'>
         <div className='grid grid-cols-1 py-12 lg:grid-cols-5 lg:py-32 lg:pr-10'>
           <div className='lg:col-span-2 lg:col-start-4'>

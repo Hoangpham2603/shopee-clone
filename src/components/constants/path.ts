@@ -9,5 +9,7 @@ const path = {
   register: 'register',
   productDetail: ':nameId',
   cart: '/cart'
-}
+} as const
+// to make it as a constance so we cant change the value of each key
+
 export default path
